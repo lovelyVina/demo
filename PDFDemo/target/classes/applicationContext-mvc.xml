@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd    
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+
+	<!-- 属性文件读入 -->
+	<context:property-placeholder location="classpath:application.properties"/>
+	<context:component-scan base-package="com.vina.controller,com.vina.entity"/>
+	
+    <!-- springmvc config start -->
+	<bean id="freemarkerConfig"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<property name="templateLoaderPath" value="/WEB-INF/freemarker/" />
+		<property name="defaultEncoding" value="${freemarker.default_encoding}" />
+		<property name="freemarkerVariables">
+			<map>
+				<!-- <entry key="testentry" value="testvalue"></entry> -->
+			</map>
+		</property>
+		<property name="freemarkerSettings">
+			<props>
+				<prop key="template_update_delay">${freemarker.template_update_delay}</prop>
+				<prop key="locale">${freemarker.locale}</prop>
+				<prop key="datetime_format">${freemarker.datetime_format}</prop>
+				<prop key="date_format">${freemarker.date_format}</prop>
+				<prop key="number_format">${freemarker.number_format}</prop>
+				<prop key="template_exception_handler">${freemarker.template_exception_handler}</prop>
+				<prop key="classic_compatible">${freemarker.classic_compatible}</prop>
+				<prop key="object_wrapper">${freemarker.object_wrapper}</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<mvc:annotation-driven>
+		<!-- <mvc:argument-resolvers>
+			<bean class="com.ctt.eshop.mvc.CurrentUserMethodArgumentResolver"/> 
+			<bean class="org.springframework.data.web.PagedResourcesAssemblerArgumentResolver"/>
+		</mvc:argument-resolvers> -->
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/plain;charset=UTF-8</value>
+						<value>text/html;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html;charset=UTF-8</value>
+						<value>application/json;charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean id="viewResolvers" class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<property name="defaultContentType" value="application/json" />
+		<property name="mediaTypes">
+			<map>
+				<entry key="html" value="text/html" />
+				<entry key="json" value="application/json" />
+				<entry key="xml" value="application/xml" />
+				<entry key="excel" value="application/excel" />
+				<entry key="pdf" value="application/pdf" />
+			</map>
+		</property>
+		<property name="viewResolvers">
+			<list>
+				<bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+					<property name="cache" value="true" />
+					<property name="prefix" value="" />
+					<property name="suffix" value=".ftl" />
+					<property name="contentType" value="text/html;charset=UTF-8" />
+					<property name="requestContextAttribute" value="request" />
+					<property name="exposeRequestAttributes" value="true" />
+					<property name="exposeSessionAttributes" value="true" />
+					<property name="exposeSpringMacroHelpers" value="true" />
+					<property name="allowSessionOverride" value="true" />
+					<!-- <property name="attributesMap">
+						<bean class="com.ctt.eshop.mvc.FreemarkerStaticModels">
+							<constructor-arg>
+								<props>
+									<prop key="ServletUtils">com.ctt.eshop.util.ServletUtils</prop>
+								</props>
+							</constructor-arg>
+						</bean>
+					</property> -->
+				</bean>
+			</list>
+		</property>
+		<property name="defaultViews">
+			<list>
+				<bean
+					class="org.springframework.web.servlet.view.json.MappingJackson2JsonView">
+					<property name="prettyPrint" value="true" />
+					<property name="contentType" value="text/plain" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="5242880" /><!-- 5M -->
+	</bean>
+	
+	<bean id="excelViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver" />
+	
+	<!-- <mvc:interceptors>
+		<bean class="com.ctt.eshop.mvc.GlobalInterceptor"/>
+		<bean class="com.ctt.eshop.mvc.CSRFHandlerInterceptor"/>
+		<bean class="com.ctt.eshop.mvc.PrepareInterceptor"/>
+	</mvc:interceptors> -->
+	
+	<!-- springmvc config end -->
+	
+	<!-- 按照BeanName解析视图 -->
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+	    <property name="order" value="1" />
+	</bean>
+		
+	<!-- 定义Pdf模版视图 -->
+	<bean id="pdfTest" class="com.vina.view.PdfStamperView">
+	    <property name="url" value="demo.pdf" />
+	</bean>
+
+</beans>
